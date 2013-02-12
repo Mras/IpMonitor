@@ -3,5 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Quartz"/>
+	<classpathentry kind="lib" path="D:/Work/LIBS/Quartz/quartz-2.1.6/lib/c3p0-0.9.1.1.jar"/>
+	<classpathentry kind="lib" path="D:/Work/LIBS/Quartz/quartz-2.1.6/lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="D:/Work/LIBS/Quartz/quartz-2.1.6/lib/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="D:/Work/LIBS/Quartz/quartz-2.1.6/lib/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
