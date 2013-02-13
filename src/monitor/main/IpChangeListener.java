@@ -5,6 +5,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
@@ -20,16 +21,16 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
-public class Quarts implements Job {
+public class IpChangeListener implements Job {
 	private JobDetail job;
 	private Trigger trigger;
 	private Scheduler scheduler;
 	private String ipAdress;
 	private ArrayList<IpAddressRefreshListener> ipAddressRefreshListeners;
-	private static final Logger LOGGER = LoggerHelper.getLogger(Quarts.class);
+	private static final Logger LOGGER = LoggerHelper.getLogger(IpChangeListener.class);
 	
 
-	public Quarts(){
+	public IpChangeListener(){
 		super();
 		init();
 	}
@@ -45,7 +46,7 @@ public class Quarts implements Job {
 			scheduler = StdSchedulerFactory.getDefaultScheduler();
 			scheduler.start();
 
-			job = JobBuilder.newJob(Quarts.class).withIdentity("ipMonitorJob").build();
+			job = JobBuilder.newJob(IpChangeListener.class).withIdentity("ipMonitorJob").build();
 
 			trigger =  TriggerBuilder.newTrigger()
 					.withIdentity("ipMonitorTrigger")
@@ -77,29 +78,32 @@ public class Quarts implements Job {
 	}
 
 	public void refreshIpAdress(){
-		String ipAdress = "null";
+		String newIpAdress = "null";
+		int numberOfAdresesFound = 0;
 		try {
 			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 			while (interfaces.hasMoreElements()){
 				NetworkInterface current = interfaces.nextElement();
 
-				if (!current.isUp() || current.isLoopback() || current.isVirtual()) continue;
+				if (!current.isUp() || current.isLoopback() || current.isVirtual() || current.getDisplayName().startsWith("VMware")) continue;
 
 				Enumeration<InetAddress> addresses = current.getInetAddresses();
 				while (addresses.hasMoreElements()){
 					InetAddress current_addr = addresses.nextElement();
 					if (current_addr.isLoopbackAddress() || current_addr instanceof Inet6Address) continue;
 					if (current_addr instanceof Inet4Address){
-						ipAdress = current_addr.getHostAddress();
-						LOGGER.info("Refreshed ip: "+ipAdress);
+						newIpAdress = current_addr.getHostAddress();	
+						numberOfAdresesFound++;
 					}
 				}
 			}
 		} catch (SocketException e) {
-			ipAdress = e.getClass().toString();
+			newIpAdress = e.getClass().toString();
 			e.printStackTrace();
 		}
-		this.ipAdress = ipAdress;
+		String result = "ip`s found: "+ numberOfAdresesFound +" \n" +newIpAdress;
+		LOGGER.info("\n"+result);
+		this.ipAdress = result;
 	}
 
 	public String getIpAdress() {

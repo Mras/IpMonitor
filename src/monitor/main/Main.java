@@ -23,6 +23,6 @@ public class Main {
 	}
 	
 	private static void setlookAndFeel() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
-		 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		 UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus");
 	}
 }
