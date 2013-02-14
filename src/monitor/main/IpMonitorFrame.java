@@ -7,18 +7,17 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
-import org.apache.log4j.Logger;
 
 public class IpMonitorFrame extends JFrame {
-	private static final Logger LOGGER = LoggerHelper.getLogger(IpMonitorFrame.class);
+//	private static final Logger LOGGER = LoggerHelper.getLogger(IpMonitorFrame.class);
 	private JPanel ipMonitorPanel;
-	private JLabel ipAdressLabel;
+	private JTextArea ipAdressLabel;
 	private JButton refreshButton;
 	private JButton exitButton;
-	private IpChangeListener quarts;
+	private IpChangeListener ipChangeListener;
 
 	public IpMonitorFrame()
 			throws HeadlessException {
@@ -32,23 +31,24 @@ public class IpMonitorFrame extends JFrame {
 		setTitle("Ip Monitor");
 
 		ipMonitorPanel = new JPanel();
-		ipAdressLabel = new JLabel();
+		ipAdressLabel = new JTextArea();
 		refreshButton = new JButton("Refresh");
 		exitButton = new JButton("Exit");
 
-		quarts = new IpChangeListener();
-		quarts.addIpAddressRefreshListener(new IpAddressRefreshListener(){
+		ipChangeListener = new IpChangeListener();
+		ipChangeListener.addIpAddressRefreshListener(new IpAddressRefreshListener(){
 			@Override
 			public void onIpAddresRefresh() {
-				ipAdressLabel.setText(quarts.getIpAdress());
+				ipAdressLabel.setText(ipChangeListener.getIpAdress());
 			}
 		});
-		ipAdressLabel.setText(quarts.getIpAdress());
+		ipAdressLabel.setText(ipChangeListener.getIpAdress());
+		ipAdressLabel.setEditable(false);
 		refreshButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				quarts.refreshIpAdress();
-				ipAdressLabel.setText(quarts.getIpAdress());
+				ipChangeListener.refreshIpAdress();
+				ipAdressLabel.setText(ipChangeListener.getIpAdress());
 			}
 		});
 		
@@ -59,15 +59,11 @@ public class IpMonitorFrame extends JFrame {
 			}
 		});
 
+		ipMonitorPanel.setLayout(new FlowLayout());
 		ipMonitorPanel.add(ipAdressLabel);
 		ipMonitorPanel.add(refreshButton);
 		ipMonitorPanel.add(exitButton);
-		ipMonitorPanel.setLayout(new FlowLayout());
 		add(ipMonitorPanel);
 		pack();
-	}
-
-	protected JLabel getIpAdressLabel() {
-		return ipAdressLabel;
 	}
 }

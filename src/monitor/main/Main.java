@@ -1,7 +1,6 @@
 package monitor.main;
 
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
@@ -15,14 +14,10 @@ public class Main {
 
 	public static void main(String[] args) {
 		try {
-			setlookAndFeel();
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
 		} catch (Exception e) {
 			LOGGER.error("Error while setting Look and Feel", e);
 		}
 		IP_MONITOR_FRAME.setVisible(true);
-	}
-	
-	private static void setlookAndFeel() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
-		 UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus");
 	}
 }

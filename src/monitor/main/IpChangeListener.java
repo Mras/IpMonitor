@@ -5,8 +5,8 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
@@ -26,9 +26,10 @@ public class IpChangeListener implements Job {
 	private Trigger trigger;
 	private Scheduler scheduler;
 	private String ipAdress;
-	private ArrayList<IpAddressRefreshListener> ipAddressRefreshListeners;
+	private int numberOfAdresesFound = 0;
+	private static ArrayList<IpAddressRefreshListener> ipAddressRefreshListeners;
 	private static final Logger LOGGER = LoggerHelper.getLogger(IpChangeListener.class);
-	
+	private static boolean isJobStarted = false;
 
 	public IpChangeListener(){
 		super();
@@ -40,32 +41,31 @@ public class IpChangeListener implements Job {
 	}
 
 	public void init() {
-		ipAddressRefreshListeners = new ArrayList<IpAddressRefreshListener>(1);
-		refreshIpAdress();
-		try{
-			scheduler = StdSchedulerFactory.getDefaultScheduler();
-			scheduler.start();
+		if(!isJobStarted){
+			ipAddressRefreshListeners = new ArrayList<IpAddressRefreshListener>(1);
+			refreshIpAdress();
+			try{
+				scheduler = StdSchedulerFactory.getDefaultScheduler();
+				scheduler.start();
 
-			job = JobBuilder.newJob(IpChangeListener.class).withIdentity("ipMonitorJob").build();
+				job = JobBuilder.newJob(IpChangeListener.class).withIdentity("ipMonitorJob").build();
 
-			trigger =  TriggerBuilder.newTrigger()
-					.withIdentity("ipMonitorTrigger")
-					.startNow()
-					.withSchedule(
-							SimpleScheduleBuilder
-							.simpleSchedule()
-							.withIntervalInSeconds(30)
-							.repeatForever())
-							.build();
+				trigger =  TriggerBuilder.newTrigger()
+						.withIdentity("ipMonitorTrigger")
+						.startNow()
+						.withSchedule(
+								SimpleScheduleBuilder
+								.simpleSchedule()
+								.withIntervalInSeconds(30)
+								.repeatForever())
+								.build();
 
-			scheduler.scheduleJob(job, trigger);
-
-			//			while(ipMonitorFrame!=null && ipMonitorFrame.isShowing()){
-			//				Thread.sleep(1000);
-			//			}
-		}
-		catch(Exception e){
-			e.printStackTrace(System.out);
+				scheduler.scheduleJob(job, trigger);
+				isJobStarted = true;
+			}
+			catch(Exception e){
+				e.printStackTrace(System.out);
+			}
 		}
 	}
 
@@ -78,8 +78,8 @@ public class IpChangeListener implements Job {
 	}
 
 	public void refreshIpAdress(){
-		String newIpAdress = "null";
-		int numberOfAdresesFound = 0;
+		String newIpAdress = "";
+		numberOfAdresesFound = 0;
 		try {
 			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 			while (interfaces.hasMoreElements()){
@@ -92,7 +92,7 @@ public class IpChangeListener implements Job {
 					InetAddress current_addr = addresses.nextElement();
 					if (current_addr.isLoopbackAddress() || current_addr instanceof Inet6Address) continue;
 					if (current_addr instanceof Inet4Address){
-						newIpAdress = current_addr.getHostAddress();	
+						newIpAdress = newIpAdress + current.getDisplayName() + ": " + current_addr.getHostAddress() + "\n";	
 						numberOfAdresesFound++;
 					}
 				}
@@ -101,7 +101,7 @@ public class IpChangeListener implements Job {
 			newIpAdress = e.getClass().toString();
 			e.printStackTrace();
 		}
-		String result = "ip`s found: "+ numberOfAdresesFound +" \n" +newIpAdress;
+		String result = "Ip`s found: "+ numberOfAdresesFound +" \n" +newIpAdress;
 		LOGGER.info("\n"+result);
 		this.ipAdress = result;
 	}
@@ -114,5 +114,13 @@ public class IpChangeListener implements Job {
 			refreshIpAdress();
 			return ipAdress;
 		}
+	}
+	
+	public Date getLastrefreshedTime(){
+		return trigger.getPreviousFireTime();
+	}
+	
+	public int getNumberOfAdresesFound(){
+		return numberOfAdresesFound;
 	}
 }
