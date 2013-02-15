@@ -10,6 +10,6 @@ public class LoggerHelper {
 	}
 	
 	public static org.apache.log4j.Logger getLogger(Class<?> clazz){
-		return Logger.getLogger(IpChangeListener.class);	
+		return Logger.getLogger(IpChangeMonitor.class);	
 	}
 }

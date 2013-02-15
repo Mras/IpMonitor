@@ -17,7 +17,7 @@ public class IpMonitorFrame extends JFrame {
 	private JTextArea ipAdressLabel;
 	private JButton refreshButton;
 	private JButton exitButton;
-	private IpChangeListener ipChangeListener;
+	private IpChangeMonitor ipChangeMonitor;
 
 	public IpMonitorFrame()
 			throws HeadlessException {
@@ -34,24 +34,24 @@ public class IpMonitorFrame extends JFrame {
 		ipAdressLabel = new JTextArea();
 		refreshButton = new JButton("Refresh");
 		exitButton = new JButton("Exit");
-
-		ipChangeListener = new IpChangeListener();
-		ipChangeListener.addIpAddressRefreshListener(new IpAddressRefreshListener(){
+		ipChangeMonitor = new IpChangeMonitor();
+		
+		ipAdressLabel.setEditable(false);
+		showNewIpAdress();
+		
+		ipChangeMonitor.addIpAddressRefreshListener(new IpAddressRefreshListener(){
 			@Override
 			public void onIpAddresRefresh() {
-				ipAdressLabel.setText(ipChangeListener.getIpAdress());
+				showNewIpAdress();
 			}
 		});
-		ipAdressLabel.setText(ipChangeListener.getIpAdress());
-		ipAdressLabel.setEditable(false);
 		refreshButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				ipChangeListener.refreshIpAdress();
-				ipAdressLabel.setText(ipChangeListener.getIpAdress());
+				ipChangeMonitor.refreshIpAdress();
+				showNewIpAdress();
 			}
 		});
-		
 		exitButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -65,5 +65,10 @@ public class IpMonitorFrame extends JFrame {
 		ipMonitorPanel.add(exitButton);
 		add(ipMonitorPanel);
 		pack();
+	}
+	
+	private void showNewIpAdress(){
+		String s = "" + ipChangeMonitor.getLastrefreshedTime() + " Adreses found: " + ipChangeMonitor.getNumberOfAdresesFound() + "\n";
+		ipAdressLabel.setText(s);
 	}
 }
