@@ -128,6 +128,7 @@ public class IpChangeMonitor implements Job {
 		} catch (SocketException e) {
 			LOGGER.error("Error in refresh()", e);
 		}
+		LOGGER.info("Found: "+numberOfAdresesFound);
 		this.ipAdress = newIpAdress;
 	}
 }

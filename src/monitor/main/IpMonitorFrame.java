@@ -19,7 +19,8 @@ public class IpMonitorFrame extends JFrame {
 //	private static final Logger LOGGER = LoggerHelper.getLogger(IpMonitorFrame.class);
 	private JPanel ipMonitorTextPanel;
 	private JPanel ipMonitorButtonPanel;
-	private JLabel infoLabel;
+	private JLabel lastRefreshedLabel;
+	private JLabel ipsFoundLabel;
 	private JTextArea ipAdressTextArea;
 	private JButton refreshButton;
 	private JButton exitButton;
@@ -38,11 +39,21 @@ public class IpMonitorFrame extends JFrame {
 
 		ipMonitorButtonPanel = new JPanel();
 		ipMonitorTextPanel = new JPanel();
-		infoLabel = new JLabel();
+		lastRefreshedLabel = new JLabel();
+		ipsFoundLabel = new JLabel();
 		ipAdressTextArea = new JTextArea();
 		refreshButton = new JButton("Refresh");
 		exitButton = new JButton("Exit");
 		ipChangeMonitor = new IpChangeMonitor();
+		
+		
+		ipMonitorButtonPanel.setAlignmentX(LEFT_ALIGNMENT);
+		ipMonitorTextPanel.setAlignmentX(LEFT_ALIGNMENT);
+		lastRefreshedLabel.setAlignmentX(LEFT_ALIGNMENT);
+		ipsFoundLabel.setAlignmentX(LEFT_ALIGNMENT);
+		ipAdressTextArea.setAlignmentX(LEFT_ALIGNMENT);
+		refreshButton.setAlignmentX(LEFT_ALIGNMENT);
+		exitButton.setAlignmentX(LEFT_ALIGNMENT);
 		
 		ipAdressTextArea.setEditable(false);
 		showNewIpAdress();
@@ -69,8 +80,8 @@ public class IpMonitorFrame extends JFrame {
 
 		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		ipMonitorTextPanel.setLayout(new BoxLayout(ipMonitorTextPanel, BoxLayout.Y_AXIS));
-		infoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		ipMonitorTextPanel.add(infoLabel);
+		ipMonitorTextPanel.add(lastRefreshedLabel);
+		ipMonitorTextPanel.add(ipsFoundLabel);
 		ipMonitorTextPanel.add(ipAdressTextArea);
 		ipMonitorButtonPanel.add(refreshButton);
 		ipMonitorButtonPanel.add(exitButton);
@@ -85,8 +96,8 @@ public class IpMonitorFrame extends JFrame {
 		for (Map.Entry<String, String> current: ipAdress.entrySet()){
 			s.append (current.getKey() + ": " + current.getValue() + "\n");
 		}
-		infoLabel.setText("Last refreshed at " + ipChangeMonitor.getLastrefreshedTime() + "\n" 
-				+ "Adreses found: " + ipChangeMonitor.getNumberOfAdresesFound());
+		lastRefreshedLabel.setText("Last refreshed at " + ipChangeMonitor.getLastrefreshedTime());
+		ipsFoundLabel.setText("Adreses found: " + ipChangeMonitor.getNumberOfAdresesFound());
 		ipAdressTextArea.setText(s.toString());
 		pack();
 	}
