@@ -1,20 +1,26 @@
 package monitor.main;
 
-import java.awt.FlowLayout;
+import java.awt.Component;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 
 public class IpMonitorFrame extends JFrame {
 //	private static final Logger LOGGER = LoggerHelper.getLogger(IpMonitorFrame.class);
-	private JPanel ipMonitorPanel;
-	private JTextArea ipAdressLabel;
+	private JPanel ipMonitorTextPanel;
+	private JPanel ipMonitorButtonPanel;
+	private JLabel infoLabel;
+	private JTextArea ipAdressTextArea;
 	private JButton refreshButton;
 	private JButton exitButton;
 	private IpChangeMonitor ipChangeMonitor;
@@ -30,13 +36,15 @@ public class IpMonitorFrame extends JFrame {
 		setResizable(false);
 		setTitle("Ip Monitor");
 
-		ipMonitorPanel = new JPanel();
-		ipAdressLabel = new JTextArea();
+		ipMonitorButtonPanel = new JPanel();
+		ipMonitorTextPanel = new JPanel();
+		infoLabel = new JLabel();
+		ipAdressTextArea = new JTextArea();
 		refreshButton = new JButton("Refresh");
 		exitButton = new JButton("Exit");
 		ipChangeMonitor = new IpChangeMonitor();
 		
-		ipAdressLabel.setEditable(false);
+		ipAdressTextArea.setEditable(false);
 		showNewIpAdress();
 		
 		ipChangeMonitor.addIpAddressRefreshListener(new IpAddressRefreshListener(){
@@ -59,16 +67,27 @@ public class IpMonitorFrame extends JFrame {
 			}
 		});
 
-		ipMonitorPanel.setLayout(new FlowLayout());
-		ipMonitorPanel.add(ipAdressLabel);
-		ipMonitorPanel.add(refreshButton);
-		ipMonitorPanel.add(exitButton);
-		add(ipMonitorPanel);
+		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+		ipMonitorTextPanel.setLayout(new BoxLayout(ipMonitorTextPanel, BoxLayout.Y_AXIS));
+		infoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		ipMonitorTextPanel.add(infoLabel);
+		ipMonitorTextPanel.add(ipAdressTextArea);
+		ipMonitorButtonPanel.add(refreshButton);
+		ipMonitorButtonPanel.add(exitButton);
+		add(ipMonitorTextPanel);
+		add(ipMonitorButtonPanel);
 		pack();
 	}
 	
 	private void showNewIpAdress(){
-		String s = "" + ipChangeMonitor.getLastrefreshedTime() + " Adreses found: " + ipChangeMonitor.getNumberOfAdresesFound() + "\n";
-		ipAdressLabel.setText(s);
+		StringBuilder s = new StringBuilder(150);
+		LinkedHashMap<String, String> ipAdress = ipChangeMonitor.getIpAdress();
+		for (Map.Entry<String, String> current: ipAdress.entrySet()){
+			s.append (current.getKey() + ": " + current.getValue() + "\n");
+		}
+		infoLabel.setText("Last refreshed at " + ipChangeMonitor.getLastrefreshedTime() + "\n" 
+				+ "Adreses found: " + ipChangeMonitor.getNumberOfAdresesFound());
+		ipAdressTextArea.setText(s.toString());
+		pack();
 	}
 }
