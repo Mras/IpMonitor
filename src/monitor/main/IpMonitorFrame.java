@@ -1,6 +1,6 @@
 package monitor.main;
 
-import java.awt.Component;
+import java.awt.Font;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,9 +14,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-
 public class IpMonitorFrame extends JFrame {
-//	private static final Logger LOGGER = LoggerHelper.getLogger(IpMonitorFrame.class);
+	//	private static final Logger LOGGER = LoggerHelper.getLogger(IpMonitorFrame.class);
+	private static final Font FONT = new Font(Font.SERIF,Font.PLAIN,15);
 	private JPanel ipMonitorTextPanel;
 	private JPanel ipMonitorButtonPanel;
 	private JLabel lastRefreshedLabel;
@@ -45,8 +45,7 @@ public class IpMonitorFrame extends JFrame {
 		refreshButton = new JButton("Refresh");
 		exitButton = new JButton("Exit");
 		ipChangeMonitor = new IpChangeMonitor();
-		
-		
+
 		ipMonitorButtonPanel.setAlignmentX(LEFT_ALIGNMENT);
 		ipMonitorTextPanel.setAlignmentX(LEFT_ALIGNMENT);
 		lastRefreshedLabel.setAlignmentX(LEFT_ALIGNMENT);
@@ -54,10 +53,11 @@ public class IpMonitorFrame extends JFrame {
 		ipAdressTextArea.setAlignmentX(LEFT_ALIGNMENT);
 		refreshButton.setAlignmentX(LEFT_ALIGNMENT);
 		exitButton.setAlignmentX(LEFT_ALIGNMENT);
-		
+
 		ipAdressTextArea.setEditable(false);
+		ipAdressTextArea.setFont(FONT);
 		showNewIpAdress();
-		
+
 		ipChangeMonitor.addIpAddressRefreshListener(new IpAddressRefreshListener(){
 			@Override
 			public void onIpAddresRefresh() {
@@ -88,8 +88,9 @@ public class IpMonitorFrame extends JFrame {
 		add(ipMonitorTextPanel);
 		add(ipMonitorButtonPanel);
 		pack();
+		setLocationByPlatform(true);
 	}
-	
+
 	private void showNewIpAdress(){
 		StringBuilder s = new StringBuilder(150);
 		LinkedHashMap<String, String> ipAdress = ipChangeMonitor.getIpAdress();

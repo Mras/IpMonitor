@@ -113,7 +113,7 @@ public class IpChangeMonitor implements Job {
 			while (interfaces.hasMoreElements()){
 				NetworkInterface current = interfaces.nextElement();
 
-				if (!current.isUp() || current.isLoopback() || current.isVirtual() || current.getDisplayName().startsWith("VMware")) continue;
+				if (!current.isUp() || current.isLoopback() || current.isVirtual() || current.getDisplayName().startsWith("VMware")) continue; //TODO Filter method or class?
 
 				Enumeration<InetAddress> addresses = current.getInetAddresses();
 				while (addresses.hasMoreElements()){
