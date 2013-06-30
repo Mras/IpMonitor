@@ -22,13 +22,15 @@ import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.listeners.JobListenerSupport;
 
-public class IpChangeMonitor implements Job {
+public class IpChangeMonitor extends JobListenerSupport {
 	private JobDetail job;
 	private Trigger trigger;
 	private Scheduler scheduler;
-	private LinkedHashMap<String, String> ipAdress;
+
 	private int numberOfAdresesFound = 0;
+	private String name;
 	private static ArrayList<IpAddressRefreshListener> ipAddressRefreshListeners;
 	private static final Logger LOGGER = LoggerHelper.getLogger(IpChangeMonitor.class);
 	private static boolean isJobStarted = false;
@@ -104,31 +106,9 @@ public class IpChangeMonitor implements Job {
 		return numberOfAdresesFound;
 	}
 
-	private void refresh(){
-		numberOfAdresesFound = 0;
-		LinkedHashMap<String, String> newIpAdress = new LinkedHashMap<String, String>();
-		try {
-			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 
-			while (interfaces.hasMoreElements()){
-				NetworkInterface current = interfaces.nextElement();
-
-				if (!current.isUp() || current.isLoopback() || current.isVirtual() || current.getDisplayName().startsWith("VMware")) continue; //TODO Filter method or class?
-
-				Enumeration<InetAddress> addresses = current.getInetAddresses();
-				while (addresses.hasMoreElements()){
-					InetAddress current_addr = addresses.nextElement();
-					if (current_addr.isLoopbackAddress() || current_addr instanceof Inet6Address) continue;
-					if (current_addr instanceof Inet4Address){
-						newIpAdress.put(current.getDisplayName(), current_addr.getHostAddress());
-						numberOfAdresesFound++;
-					}
-				}
-			}
-		} catch (SocketException e) {
-			LOGGER.error("Error in refresh()", e);
-		}
-		LOGGER.info("Found: "+numberOfAdresesFound);
-		this.ipAdress = newIpAdress;
+	@Override
+	public String getName() {
+		return name;
 	}
 }
