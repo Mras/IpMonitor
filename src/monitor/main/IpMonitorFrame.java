@@ -4,7 +4,7 @@ import java.awt.Font;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
@@ -14,6 +14,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import org.quartz.JobDataMap;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.JobListener;
+
 public class IpMonitorFrame extends JFrame {
 	//	private static final Logger LOGGER = LoggerHelper.getLogger(IpMonitorFrame.class);
 	private static final Font FONT = new Font(Font.SERIF,Font.PLAIN,15);
@@ -21,7 +26,7 @@ public class IpMonitorFrame extends JFrame {
 	private JPanel ipMonitorButtonPanel;
 	private JLabel lastRefreshedLabel;
 	private JLabel ipsFoundLabel;
-	private JTextArea ipAdressTextArea;
+	private JTextArea ipAddressTextArea;
 	private JButton refreshButton;
 	private JButton exitButton;
 	private IpChangeMonitor ipChangeMonitor;
@@ -41,7 +46,7 @@ public class IpMonitorFrame extends JFrame {
 		ipMonitorTextPanel = new JPanel();
 		lastRefreshedLabel = new JLabel();
 		ipsFoundLabel = new JLabel();
-		ipAdressTextArea = new JTextArea();
+		ipAddressTextArea = new JTextArea();
 		refreshButton = new JButton("Refresh");
 		exitButton = new JButton("Exit");
 		ipChangeMonitor = new IpChangeMonitor();
@@ -50,25 +55,34 @@ public class IpMonitorFrame extends JFrame {
 		ipMonitorTextPanel.setAlignmentX(LEFT_ALIGNMENT);
 		lastRefreshedLabel.setAlignmentX(LEFT_ALIGNMENT);
 		ipsFoundLabel.setAlignmentX(LEFT_ALIGNMENT);
-		ipAdressTextArea.setAlignmentX(LEFT_ALIGNMENT);
+		ipAddressTextArea.setAlignmentX(LEFT_ALIGNMENT);
 		refreshButton.setAlignmentX(LEFT_ALIGNMENT);
 		exitButton.setAlignmentX(LEFT_ALIGNMENT);
 
-		ipAdressTextArea.setEditable(false);
-		ipAdressTextArea.setFont(FONT);
-		showNewIpAdress();
+		ipAddressTextArea.setEditable(false);
+		ipAddressTextArea.setFont(FONT);
 
-		ipChangeMonitor.addIpAddressRefreshListener(new IpAddressRefreshListener(){
+		ipChangeMonitor.addIpJobListener(new JobListener(){
 			@Override
-			public void onIpAddresRefresh() {
-				showNewIpAdress();
+			public String getName() {
+				return "ipMonitorJobListener";
+			}
+			@Override
+			public void jobExecutionVetoed(JobExecutionContext context) {
+			}
+			@Override
+			public void jobToBeExecuted(JobExecutionContext context) {
+			}
+			@Override
+			public void jobWasExecuted(JobExecutionContext context,
+					JobExecutionException jobException) {
+				showNewIpAdress(context);
 			}
 		});
 		refreshButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				ipChangeMonitor.refreshIpAdress();
-				showNewIpAdress();
+				ipChangeMonitor.refreshIpAddress();
 			}
 		});
 		exitButton.addActionListener(new ActionListener(){
@@ -82,7 +96,7 @@ public class IpMonitorFrame extends JFrame {
 		ipMonitorTextPanel.setLayout(new BoxLayout(ipMonitorTextPanel, BoxLayout.Y_AXIS));
 		ipMonitorTextPanel.add(lastRefreshedLabel);
 		ipMonitorTextPanel.add(ipsFoundLabel);
-		ipMonitorTextPanel.add(ipAdressTextArea);
+		ipMonitorTextPanel.add(ipAddressTextArea);
 		ipMonitorButtonPanel.add(refreshButton);
 		ipMonitorButtonPanel.add(exitButton);
 		add(ipMonitorTextPanel);
@@ -91,15 +105,21 @@ public class IpMonitorFrame extends JFrame {
 		setLocationByPlatform(true);
 	}
 
-	private void showNewIpAdress(){
+	private void showNewIpAdress(JobExecutionContext context){
 		StringBuilder s = new StringBuilder(150);
-		LinkedHashMap<String, String> ipAdress = ipChangeMonitor.getIpAdress();
-		for (Map.Entry<String, String> current: ipAdress.entrySet()){
+		JobDataMap data = context.getJobDetail().getJobDataMap();
+
+		@SuppressWarnings("unchecked")
+		Map<String, String> ipAddressesMap =  (HashMap<String, String>) data.get(RefreshIpJob.ADDRESSES_MAP);
+
+		ipAddressesMap = ipAddressesMap==null ? new HashMap<String, String>() : ipAddressesMap;
+
+		for (Map.Entry<String, String> current: ipAddressesMap.entrySet()){
 			s.append (current.getKey() + ": " + current.getValue() + "\n");
 		}
-		lastRefreshedLabel.setText("Last refreshed at " + ipChangeMonitor.getLastrefreshedTime());
-		ipsFoundLabel.setText("Adreses found: " + ipChangeMonitor.getNumberOfAdresesFound());
-		ipAdressTextArea.setText(s.toString());
+		lastRefreshedLabel.setText("Last refreshed at " + context.getFireTime());
+		ipsFoundLabel.setText("Addreses found: " + data.get(RefreshIpJob.IPS_FOUND));
+		ipAddressTextArea.setText(s.toString());
 		pack();
 	}
 }

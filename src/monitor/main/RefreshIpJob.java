@@ -6,21 +6,23 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 public class RefreshIpJob implements Job {
 	private static final Logger LOGGER = LoggerHelper.getLogger(RefreshIpJob.class);
-	private LinkedHashMap<String, String> ipAddresses;
-	
+	public static final String IPS_FOUND = "ip`s found";
+	public static final String ADDRESSES_MAP = "addresses map";
+
 	@Override
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
-		LinkedHashMap<String, String> newIpAddresses = new LinkedHashMap<String, String>();
+		HashMap<String, String> newIpAddresses = new HashMap<String, String>();
 		try {
 			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 
@@ -41,7 +43,10 @@ public class RefreshIpJob implements Job {
 		} catch (SocketException e) {
 			LOGGER.error("Error in refresh()", e);
 		}
-		LOGGER.info("Found: "+newIpAddresses.size());
-		this.ipAddresses = newIpAddresses;
+		int ipsFound = newIpAddresses.size();
+		LOGGER.info("Found: "+ipsFound+" ip`s");
+		JobDataMap jobResult = context.getJobDetail().getJobDataMap();
+		jobResult.put(IPS_FOUND, ipsFound);
+		jobResult.put(ADDRESSES_MAP, newIpAddresses);
 	}
 }
