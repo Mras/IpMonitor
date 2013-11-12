@@ -7,7 +7,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 public class Main {
-	private static final Logger LOGGER = LoggerHelper.getLogger(Main.class);
+	private static final Logger LOGGER = Logger.getLogger(Main.class);
 	private static IpMonitorFrame ipMonitorFrame;
 
 	public static void main(String[] args) {

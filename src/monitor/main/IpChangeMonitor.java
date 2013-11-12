@@ -14,7 +14,7 @@ import org.quartz.impl.StdSchedulerFactory;
 public class IpChangeMonitor{
 	private JobDetail job;
 	private Scheduler scheduler;
-	private static final Logger LOGGER = LoggerHelper.getLogger(IpChangeMonitor.class);
+	private static final Logger LOGGER = Logger.getLogger(IpChangeMonitor.class);
 	private static final int JOB_REPEAT_INTERVAL = 60*5; // 5 minutes
 	private static volatile boolean isJobStarted = false;
 

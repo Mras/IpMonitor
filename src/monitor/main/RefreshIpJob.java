@@ -15,7 +15,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 public class RefreshIpJob implements Job {
-	private static final Logger LOGGER = LoggerHelper.getLogger(RefreshIpJob.class);
+	private static final Logger LOGGER = Logger.getLogger(RefreshIpJob.class);
 	public static final String IPS_FOUND = "ip`s found";
 	public static final String ADDRESSES_MAP = "addresses map";
 
